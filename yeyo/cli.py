@@ -11,6 +11,11 @@ from yeyo import __version__
 from yeyo.config import YeyoConfig
 
 
+STARTING_VERSION = "0.0.0-dev.1"
+STARTING_FILE = Path("VERSION")
+DEFAULT_CONFIG_PATH = ".yeyo.json"
+
+
 def with_prerel(f):
     """A decorator to add the prerel option, which if True means to bump with a prerelease."""
 
@@ -34,7 +39,7 @@ def with_dryrun(f):
 
 
 @click.group()
-@click.option("-c", "--config-path", default=".yeyo.json")
+@click.option("-c", "--config-path", default=DEFAULT_CONFIG_PATH)
 @click.pass_context
 def main(ctx, config_path):
     """The base of the yeyo command."""
@@ -52,10 +57,9 @@ def version():
 @click.pass_context
 def init(ctx):
     """Init a project with a yeyo config."""
-    version_file = Path("VERSION")
-    p = YeyoConfig(version=parse_version_info("0.0.0-dev.1"), files={version_file})
+    p = YeyoConfig(version=parse_version_info(STARTING_VERSION), files={STARTING_FILE})
 
-    with open(version_file, "w") as version_file_handler:
+    with open(STARTING_FILE, "w") as version_file_handler:
         version_file_handler.write(f"{p.version_string}\n")
 
     p.to_json(ctx.obj["config_path"])
@@ -78,7 +82,7 @@ def major(ctx, **kwargs):
 
     new_config = yc.bump_major()
     if kwargs["prerel"]:
-        new_config = yc.bump_prerelease()
+        new_config = new_config.bump_prerelease()
 
     new_config.update(yc, ctx.obj["config_path"], kwargs["dryrun"])
 
@@ -93,7 +97,7 @@ def minor(ctx, **kwargs):
 
     new_config = yc.bump_minor()
     if kwargs["prerel"]:
-        new_config = yc.bump_prerelease()
+        new_config = new_config.bump_prerelease()
 
     new_config.update(yc, ctx.obj["config_path"], kwargs["dryrun"])
 
@@ -108,7 +112,7 @@ def patch(ctx, **kwargs):
 
     new_config = yc.bump_patch()
     if kwargs["prerel"]:
-        new_config = yc.bump_prerelease()
+        new_config = new_config.bump_prerelease()
 
     new_config.update(yc, ctx.obj["config_path"], kwargs["dryrun"])
 
