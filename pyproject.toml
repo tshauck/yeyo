@@ -5,6 +5,9 @@ description = "Hey-o for yeyo."
 authors = ["Trent Hauck <trent@trenthauck.com>"]
 
 homepage = "https://www.github.com/tshauck/yeyo"
+readme = "README.md"
+repository = "https://github.com/tshauck/yeyo"
+license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.6"
