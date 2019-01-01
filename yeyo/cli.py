@@ -11,7 +11,6 @@ from yeyo import __version__
 from yeyo.config import YeyoConfig
 
 
-
 def with_prerel(f):
     """A decorator to add the prerel option, which if True means to bump with a prerelease."""
 
