@@ -9,12 +9,6 @@ from yeyo.config import YeyoConfig
 
 
 class TestYeyoConfig(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
     def test_to_json_roundtrip(self):
 
         with tempfile.TemporaryDirectory() as tmp:
@@ -32,6 +26,7 @@ class TestYeyoConfig(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
             version = tmp_path / "VERSION"
+            config_path = tmp_path / "test.json"
 
             yc = YeyoConfig.from_version_string("0.1.1", {version})
             new_yc = YeyoConfig.from_version_string("0.2.1", {version})
@@ -39,7 +34,7 @@ class TestYeyoConfig(unittest.TestCase):
             with open(version, "w") as f:
                 f.write(yc.version_string)
 
-            new_yc.update_prior_config(yc)
+            new_yc.update(yc, config_path)
 
             with open(version) as f:
                 lines = f.readlines()[0]
