@@ -4,6 +4,7 @@
 import functools
 from pathlib import Path
 
+import py
 import click
 from semver import parse_version_info
 
@@ -51,6 +52,12 @@ def main(ctx, config_path):
 def version():
     """Print the version and exit."""
     click.echo(__version__)
+
+
+@main.command()
+def test():
+    """Run the tests."""
+    py.test.cmdline.main(["yeyo"])
 
 
 @main.command()

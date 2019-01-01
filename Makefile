@@ -3,7 +3,7 @@
 
 .PHONY: test
 test:
-	pytest -v -s --cov-report term-missing --cov=yeyo
+	yeyo test
 
 .PHONY: build
 build:
