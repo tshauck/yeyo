@@ -5,6 +5,7 @@
 ### Added
 
 - Add general verion bump capabilities.
+- Add files subcommand and its subcommands.
 - Add dryrun option.
 - Modularized generic input options.
 

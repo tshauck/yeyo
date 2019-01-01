@@ -40,3 +40,27 @@ class TestYeyoConfig(unittest.TestCase):
                 lines = f.readlines()[0]
 
             self.assertEqual(new_yc.version_string, lines.strip("\n"))
+
+    def test_remove_file(self):
+
+        paths = {Path("a"), Path("b")}
+
+        yc = YeyoConfig.from_version_string("0.1.1", paths)
+        new_yc = yc.remove_file(Path("a"))
+
+        self.assertEqual(new_yc.files, {Path("b")})
+        self.assertEqual(yc.files, paths)
+
+    def test_add_file(self):
+
+        paths = {Path("a")}
+        new_path = Path("b")
+
+        yc = YeyoConfig.from_version_string("0.1.1", paths)
+        new_yc = yc.add_file(new_path)
+
+        self.assertEqual(yc.files, paths)
+
+        # `add` is in-place so do after the first assert.
+        paths.add(new_path)
+        self.assertEqual(new_yc.files, paths)

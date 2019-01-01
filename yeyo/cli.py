@@ -135,3 +135,42 @@ def finalize(ctx, **kwargs):
 
     new_config = yc.finalize()
     new_config.update(yc, ctx.obj["config_path"], kwargs["dryrun"])
+
+
+@main.group()
+@click.pass_context
+def files(ctx):
+    """Entrypoint for version bumping."""
+    ctx.obj["yc"] = YeyoConfig.from_json(ctx.obj["config_path"])
+
+
+@files.command()
+@with_dryrun
+@click.pass_context
+def ls(ctx, **kwargs):
+    """List of the files present in yeyo's config."""
+    yc = ctx.obj["yc"]
+    for f in yc.files:
+        click.echo(str(f))
+
+
+@files.command()
+@click.pass_context
+@click.argument("path")
+def rm(ctx, path, **kwargs):
+    """List of the files present in yeyo's config."""
+    yc = ctx.obj["yc"]
+
+    new_config = yc.remove_file(Path(path))
+    new_config.to_json(ctx.obj["config_path"])
+
+
+@files.command()
+@click.pass_context
+@click.argument("path")
+def add(ctx, path, **kwargs):
+    """List of the files present in yeyo's config."""
+    yc = ctx.obj["yc"]
+
+    new_config = yc.add_file(Path(path))
+    new_config.to_json(ctx.obj["config_path"])

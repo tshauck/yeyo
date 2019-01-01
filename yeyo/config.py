@@ -2,6 +2,7 @@
 # All Rights Reserved
 """Contains the YeyoConfig object."""
 
+import copy
 import fileinput
 import json
 from pathlib import Path
@@ -27,6 +28,20 @@ class YeyoConfig(object):
         ok_version = self.version == other.version
         ok_files = self.files == other.files
         return ok_files and ok_version
+
+    def remove_file(self, file_path: Path) -> "YeyoConfig":
+        """Create a new config object with file_path removed from the files."""
+
+        file_copy = copy.copy(self.files)
+        file_copy.remove(file_path)
+        return YeyoConfig(self.version, file_copy)
+
+    def add_file(self, file_path: Path) -> "YeyoConfig":
+        """Create a new config object with file_path added to the files."""
+
+        file_copy = copy.copy(self.files)
+        file_copy.add(file_path)
+        return YeyoConfig(self.version, file_copy)
 
     @classmethod
     def from_version_string(cls, version_string: str, f: Optional[Set[Path]] = None):
@@ -151,6 +166,6 @@ class YeyoConfigDecoder(json.JSONDecoder):
     def object_hook(self, obj):
         """Given the object passed, return a YeyoConfig object."""
         version = semver.parse_version_info(obj["version"])
-        files = [Path(p) for p in obj["files"]]
+        files = set([Path(p) for p in obj["files"]])
 
         return YeyoConfig(version, files)
