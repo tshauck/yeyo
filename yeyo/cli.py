@@ -3,7 +3,6 @@
 
 import functools
 from pathlib import Path
-import functools
 
 import click
 from semver import parse_version_info
@@ -11,27 +10,6 @@ from semver import parse_version_info
 from yeyo import __version__
 from yeyo.config import YeyoConfig
 
-
-def with_prerel(f):
-    """A decorator to add the prerel option, which if True means to bump with a prerelease."""
-
-    @click.option("--prerel/--no-prerel", default=True)
-    @functools.wraps(f)
-    def wrapper(*args, **kwargs):
-        return f(*args, **kwargs)
-
-    return wrapper
-
-
-def with_dryrun(f):
-    """A decorator to add the option dryrun, which if True means not to overwrite the files."""
-
-    @click.option("--dryrun/--no-dryrun", default=False)
-    @functools.wraps(f)
-    def wrapper(*args, **kwargs):
-        return f(*args, **kwargs)
-
-    return wrapper
 
 
 def with_prerel(f):
