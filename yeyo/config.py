@@ -43,6 +43,11 @@ class YeyoConfig(object):
         file_copy.add(file_path)
         return YeyoConfig(self.version, file_copy)
 
+    def add_files(self, file_paths: Set[Path]) -> "YeyoConfig":
+        """Add a set of paths to the config."""
+
+        return YeyoConfig(self.version, self.files.union(file_paths))
+
     @classmethod
     def from_version_string(cls, version_string: str, f: Optional[Set[Path]] = None):
         """Create a YeyoConfig from a version string."""

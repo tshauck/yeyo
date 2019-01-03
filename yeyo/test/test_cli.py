@@ -7,7 +7,7 @@ from typing import List, NamedTuple
 
 from click.testing import CliRunner
 from yeyo import cli
-from yeyo.cli import DEFAULT_CONFIG_PATH, STARTING_FILE, STARTING_VERSION
+from yeyo.cli import DEFAULT_CONFIG_PATH, STARTING_VERSION
 from yeyo.config import YeyoConfig
 
 
@@ -23,25 +23,31 @@ class TestCLI(unittest.TestCase):
             expected_config: YeyoConfig
             command: List[str]
 
+        test_file = Path("VERSION")
         test_rows = [
-            TestRow(YeyoConfig.from_version_string(STARTING_VERSION, {STARTING_FILE}), ["init"]),
             TestRow(
-                YeyoConfig.from_version_string("0.0.0-dev.2", {STARTING_FILE}),
-                ["bump", "prerelease"],
+                YeyoConfig.from_version_string(STARTING_VERSION, {test_file}),
+                ["init", "-f", str(test_file)],
             ),
             TestRow(
-                YeyoConfig.from_version_string("0.0.0-a.1", {STARTING_FILE}),
+                YeyoConfig.from_version_string("0.0.0-dev.2", {test_file}), ["bump", "prerelease"]
+            ),
+            TestRow(
+                YeyoConfig.from_version_string("0.0.0-a.1", {test_file}),
                 ["bump", "prerelease", "-p", "a"],
             ),
-            TestRow(YeyoConfig.from_version_string("0.0.0", {STARTING_FILE}), ["bump", "finalize"]),
+            TestRow(YeyoConfig.from_version_string("0.0.0", {test_file}), ["bump", "finalize"]),
             TestRow(
-                YeyoConfig.from_version_string("0.0.1-dev.1", {STARTING_FILE}),
+                YeyoConfig.from_version_string("0.0.1-dev.1", {test_file}),
                 ["bump", "patch", "--prerel"],
             ),
         ]
 
         runner = CliRunner()
         with runner.isolated_filesystem():
+            with open(test_file, "w") as f:
+                f.write(STARTING_VERSION)
+
             for row in test_rows:
 
                 result = runner.invoke(cli.main, row.command)
