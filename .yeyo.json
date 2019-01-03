@@ -1,1 +1,1 @@
-{"files": ["pyproject.toml", "VERSION", "yeyo/__init__.py"], "version": "0.0.1-b.5"}
+{"files": ["yeyo/__init__.py", "pyproject.toml", "VERSION"], "version": "0.0.1-rc.1"}
