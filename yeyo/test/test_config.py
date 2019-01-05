@@ -5,7 +5,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from yeyo.config import YeyoConfig, DEFAULT_COMMIT_TEMPLATE, DEFAULT_TAG_TEMPLATE
+from yeyo.config import DEFAULT_COMMIT_TEMPLATE
+from yeyo.config import DEFAULT_TAG_TEMPLATE
+from yeyo.config import YeyoConfig
 
 
 class TestYeyoConfig(unittest.TestCase):

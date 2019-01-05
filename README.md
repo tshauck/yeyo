@@ -7,11 +7,13 @@
 
 ## Installation
 
+### Python Package
+
 ```console
 $ pip install yeyo
 ```
 
-## Yeyo X Docker
+### Use with Docker
 
 If you'd like to use yeyo through docker, you can do so by first pulling the image:
 

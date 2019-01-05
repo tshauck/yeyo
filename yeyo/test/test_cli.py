@@ -3,18 +3,17 @@
 
 import unittest
 from pathlib import Path
-from typing import List, NamedTuple
+from typing import List
+from typing import NamedTuple
 
 from click.testing import CliRunner
 
 from yeyo import cli
 from yeyo.cli import STARTING_VERSION
-from yeyo.config import (
-    YeyoConfig,
-    DEFAULT_CONFIG_PATH,
-    DEFAULT_COMMIT_TEMPLATE,
-    DEFAULT_TAG_TEMPLATE,
-)
+from yeyo.config import DEFAULT_COMMIT_TEMPLATE
+from yeyo.config import DEFAULT_CONFIG_PATH
+from yeyo.config import DEFAULT_TAG_TEMPLATE
+from yeyo.config import YeyoConfig
 
 
 class TestCLI(unittest.TestCase):

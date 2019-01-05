@@ -6,7 +6,8 @@ import copy
 import fileinput
 import json
 from pathlib import Path
-from typing import Optional, Set
+from typing import Optional
+from typing import Set
 
 import git
 import semver

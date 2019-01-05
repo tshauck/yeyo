@@ -13,12 +13,10 @@ from jinja2 import Template
 from semver import parse_version_info
 
 from yeyo import __version__
-from yeyo.config import (
-    DEFAULT_COMMIT_TEMPLATE,
-    DEFAULT_CONFIG_PATH,
-    DEFAULT_TAG_TEMPLATE,
-    YeyoConfig,
-)
+from yeyo.config import DEFAULT_COMMIT_TEMPLATE
+from yeyo.config import DEFAULT_CONFIG_PATH
+from yeyo.config import DEFAULT_TAG_TEMPLATE
+from yeyo.config import YeyoConfig
 
 STARTING_VERSION = "0.0.0-dev.1"
 STARTING_FILE = Path("VERSION")
