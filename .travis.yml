@@ -3,7 +3,7 @@ jobs:
   - install:
     - pip install poetry
     - poetry install
-    script: make test
+    script: yeyo dev test
     language: python
     dist: xenial
     sudo: required
@@ -12,7 +12,7 @@ jobs:
   - install:
     - pip install poetry
     - poetry install
-    script: make test
+    script: yeyo dev test
     language: python
     dist: xenial
     sudo: required

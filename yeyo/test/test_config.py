@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from yeyo.config import YeyoConfig
+from yeyo.config import YeyoConfig, DEFAULT_COMMIT_TEMPLATE, DEFAULT_TAG_TEMPLATE
 
 
 class TestYeyoConfig(unittest.TestCase):
@@ -15,7 +15,9 @@ class TestYeyoConfig(unittest.TestCase):
             tmp_path = Path(tmp)
             config_path = tmp_path / "test.json"
 
-            yc = YeyoConfig.from_version_string("0.1.1")
+            yc = YeyoConfig.from_version_string(
+                "0.1.1", DEFAULT_COMMIT_TEMPLATE, DEFAULT_TAG_TEMPLATE
+            )
             yc.to_json(config_path)
 
             yc2 = YeyoConfig.from_json(config_path)
@@ -28,8 +30,12 @@ class TestYeyoConfig(unittest.TestCase):
             version = tmp_path / "VERSION"
             config_path = tmp_path / "test.json"
 
-            yc = YeyoConfig.from_version_string("0.1.1", {version})
-            new_yc = YeyoConfig.from_version_string("0.2.1", {version})
+            yc = YeyoConfig.from_version_string(
+                "0.1.1", DEFAULT_COMMIT_TEMPLATE, DEFAULT_TAG_TEMPLATE, {version}
+            )
+            new_yc = YeyoConfig.from_version_string(
+                "0.2.1", DEFAULT_COMMIT_TEMPLATE, DEFAULT_COMMIT_TEMPLATE, {version}
+            )
 
             with open(version, "w") as f:
                 f.write(yc.version_string)
@@ -45,7 +51,9 @@ class TestYeyoConfig(unittest.TestCase):
 
         paths = {Path("a"), Path("b")}
 
-        yc = YeyoConfig.from_version_string("0.1.1", paths)
+        yc = YeyoConfig.from_version_string(
+            "0.1.1", DEFAULT_COMMIT_TEMPLATE, DEFAULT_TAG_TEMPLATE, paths
+        )
         new_yc = yc.remove_file(Path("a"))
 
         self.assertEqual(new_yc.files, {Path("b")})
@@ -56,7 +64,9 @@ class TestYeyoConfig(unittest.TestCase):
         paths = {Path("a")}
         new_path = Path("b")
 
-        yc = YeyoConfig.from_version_string("0.1.1", paths)
+        yc = YeyoConfig.from_version_string(
+            "0.1.1", DEFAULT_COMMIT_TEMPLATE, DEFAULT_TAG_TEMPLATE, paths
+        )
         new_yc = yc.add_file(new_path)
 
         self.assertEqual(yc.files, paths)

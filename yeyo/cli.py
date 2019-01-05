@@ -1,5 +1,6 @@
 # (c) Copyright 2018 Trent Hauck
 # All Rights Reserved
+"""Defines the command line interface."""
 
 import functools
 import json
@@ -12,11 +13,35 @@ from jinja2 import Template
 from semver import parse_version_info
 
 from yeyo import __version__
-from yeyo.config import YeyoConfig
+from yeyo.config import (
+    DEFAULT_COMMIT_TEMPLATE,
+    DEFAULT_CONFIG_PATH,
+    DEFAULT_TAG_TEMPLATE,
+    YeyoConfig,
+)
 
 STARTING_VERSION = "0.0.0-dev.1"
 STARTING_FILE = Path("VERSION")
-DEFAULT_CONFIG_PATH = ".yeyo.json"
+
+
+def with_git(f):
+    """A decorator to add options for creating a git tag before or after the version bump."""
+
+    @click.option(
+        "--git-tag-before/--no-git-tag-before",
+        default=False,
+        help="If True, tag the repo, then version bump.",
+    )
+    @click.option(
+        "--git-tag-after/--no-git-tag-after",
+        default=False,
+        help="If True, bump, then commit the changed files and tag the repo.",
+    )
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        return f(*args, **kwargs)
+
+    return wrapper
 
 
 def with_prerel(f):
@@ -42,14 +67,8 @@ def with_dryrun(f):
 
 
 @click.group()
-@click.option(
-    "-c",
-    "--config-path",
-    default=DEFAULT_CONFIG_PATH,
-    help=f"Where the yeyo config is located, the default is {DEFAULT_CONFIG_PATH}.",
-)
 @click.pass_context
-def main(ctx, config_path):
+def main(ctx):
     """Hey-o for yeyo.
 
     yeyo is a command line interface for managing versioning in software development.
@@ -63,7 +82,7 @@ def main(ctx, config_path):
     $ yeyo init --help
     """
     ctx.ensure_object(dict)
-    ctx.obj["config_path"] = Path(config_path)
+    ctx.obj["config_path"] = Path(DEFAULT_CONFIG_PATH)
 
 
 @main.command()
@@ -74,7 +93,7 @@ def version():
 
 @main.group()
 def dev():
-    """Entrypoint for dev related commands."""
+    """Entrypoint for yeyo related development commands. E.g. building its docker image."""
 
 
 @dev.command()
@@ -130,8 +149,20 @@ def push(ctx):
 @click.option(
     "-f", "--files", multiple=True, help="The list of files to add to the config at the outset."
 )
+@click.option(
+    "-t",
+    "--tag-template",
+    default=DEFAULT_TAG_TEMPLATE,
+    help="A jinja2 templated string that will be used for git tags.",
+)
+@click.option(
+    "-c",
+    "--commit-template",
+    default=DEFAULT_COMMIT_TEMPLATE,
+    help="A jinja2 templated string that will be used for git commits.",
+)
 @click.pass_context
-def init(ctx, starting_version, files):
+def init(ctx, starting_version, files, tag_template, commit_template):
     """Initialize a project with a yeyo config.
 
     For example, to initialize a repo that has a setup.py file and a mod/__init__.py to track, and
@@ -149,7 +180,12 @@ def init(ctx, starting_version, files):
     * Version bumping, see: $ yeyo bump --help
     """
 
-    p = YeyoConfig(version=parse_version_info(starting_version), files=set(files))
+    p = YeyoConfig(
+        version=parse_version_info(starting_version),
+        tag_template=tag_template,
+        commit_template=commit_template,
+        files=set(files),
+    )
     p.to_json(ctx.obj["config_path"])
 
 
@@ -175,9 +211,10 @@ def bump(ctx):
 
 
 @bump.command()
+@click.pass_context
 @with_prerel
 @with_dryrun
-@click.pass_context
+@with_git
 def major(ctx, **kwargs):
     """Bump the major part of the version: X.0.0"""
     yc = ctx.obj["yc"]
@@ -186,13 +223,20 @@ def major(ctx, **kwargs):
     if kwargs["prerel"]:
         new_config = new_config.bump_prerelease()
 
-    new_config.update(yc, ctx.obj["config_path"], kwargs["dryrun"])
+    new_config.update(
+        yc,
+        ctx.obj["config_path"],
+        kwargs["dryrun"],
+        kwargs["git_tag_before"],
+        kwargs["git_tag_after"],
+    )
 
 
 @bump.command()
+@click.pass_context
 @with_prerel
 @with_dryrun
-@click.pass_context
+@with_git
 def minor(ctx, **kwargs):
     """Bump the minor part of the version: 0.X.0"""
     yc = ctx.obj["yc"]
@@ -201,13 +245,20 @@ def minor(ctx, **kwargs):
     if kwargs["prerel"]:
         new_config = new_config.bump_prerelease()
 
-    new_config.update(yc, ctx.obj["config_path"], kwargs["dryrun"])
+    new_config.update(
+        yc,
+        ctx.obj["config_path"],
+        kwargs["dryrun"],
+        kwargs["git_tag_before"],
+        kwargs["git_tag_after"],
+    )
 
 
 @bump.command()
+@click.pass_context
 @with_prerel
 @with_dryrun
-@click.pass_context
+@with_git
 def patch(ctx, **kwargs):
     """Bump the patch part of the version: 0.0.X"""
     yc = ctx.obj["yc"]
@@ -216,25 +267,39 @@ def patch(ctx, **kwargs):
     if kwargs["prerel"]:
         new_config = new_config.bump_prerelease()
 
-    new_config.update(yc, ctx.obj["config_path"], kwargs["dryrun"])
+    new_config.update(
+        yc,
+        ctx.obj["config_path"],
+        kwargs["dryrun"],
+        kwargs["git_tag_before"],
+        kwargs["git_tag_after"],
+    )
 
 
 @bump.command()
-@with_prerel
-@with_dryrun
 @click.option("-p", "--prerelease_token", type=click.Choice(["dev", "a", "b", "rc"]), default=None)
 @click.pass_context
+@with_prerel
+@with_dryrun
+@with_git
 def prerelease(ctx, prerelease_token, **kwargs):
     """Bump the prerelease part of the version."""
     yc = ctx.obj["yc"]
 
     new_config = yc.bump_prerelease(prerelease_token=prerelease_token)
-    new_config.update(yc, ctx.obj["config_path"], kwargs["dryrun"])
+    new_config.update(
+        yc,
+        ctx.obj["config_path"],
+        kwargs["dryrun"],
+        kwargs["git_tag_before"],
+        kwargs["git_tag_after"],
+    )
 
 
 @bump.command()
-@with_dryrun
 @click.pass_context
+@with_dryrun
+@with_git
 def finalize(ctx, **kwargs):
     """Finalize the current version by dropping any prerelease information."""
     yc = ctx.obj["yc"]

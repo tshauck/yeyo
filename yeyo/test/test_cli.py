@@ -8,8 +8,13 @@ from typing import List, NamedTuple
 from click.testing import CliRunner
 
 from yeyo import cli
-from yeyo.cli import DEFAULT_CONFIG_PATH, STARTING_VERSION
-from yeyo.config import YeyoConfig
+from yeyo.cli import STARTING_VERSION
+from yeyo.config import (
+    YeyoConfig,
+    DEFAULT_CONFIG_PATH,
+    DEFAULT_COMMIT_TEMPLATE,
+    DEFAULT_TAG_TEMPLATE,
+)
 
 
 class TestCLI(unittest.TestCase):
@@ -27,19 +32,33 @@ class TestCLI(unittest.TestCase):
         test_file = Path("VERSION")
         test_rows = [
             TestRow(
-                YeyoConfig.from_version_string(STARTING_VERSION, {test_file}),
+                YeyoConfig.from_version_string(
+                    STARTING_VERSION, DEFAULT_TAG_TEMPLATE, DEFAULT_COMMIT_TEMPLATE, {test_file}
+                ),
                 ["init", "-f", str(test_file)],
             ),
             TestRow(
-                YeyoConfig.from_version_string("0.0.0-dev.2", {test_file}), ["bump", "prerelease"]
+                YeyoConfig.from_version_string(
+                    "0.0.0-dev.2", DEFAULT_TAG_TEMPLATE, DEFAULT_COMMIT_TEMPLATE, {test_file}
+                ),
+                ["bump", "prerelease"],
             ),
             TestRow(
-                YeyoConfig.from_version_string("0.0.0-a.1", {test_file}),
+                YeyoConfig.from_version_string(
+                    "0.0.0-a.1", DEFAULT_TAG_TEMPLATE, DEFAULT_COMMIT_TEMPLATE, {test_file}
+                ),
                 ["bump", "prerelease", "-p", "a"],
             ),
-            TestRow(YeyoConfig.from_version_string("0.0.0", {test_file}), ["bump", "finalize"]),
             TestRow(
-                YeyoConfig.from_version_string("0.0.1-dev.1", {test_file}),
+                YeyoConfig.from_version_string(
+                    "0.0.0", DEFAULT_TAG_TEMPLATE, DEFAULT_COMMIT_TEMPLATE, {test_file}
+                ),
+                ["bump", "finalize"],
+            ),
+            TestRow(
+                YeyoConfig.from_version_string(
+                    "0.0.1-dev.1", DEFAULT_TAG_TEMPLATE, DEFAULT_COMMIT_TEMPLATE, {test_file}
+                ),
                 ["bump", "patch", "--prerel"],
             ),
         ]
