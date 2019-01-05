@@ -398,6 +398,7 @@ future = ">=0.14.0"
 jedi = ">=0.12"
 pluggy = "*"
 python-jsonrpc-server = "*"
+rope = ">0.10.5"
 
 [[package]]
 category = "main"
@@ -421,6 +422,15 @@ certifi = ">=2017.4.17"
 chardet = ">=3.0.2,<3.1.0"
 idna = ">=2.5,<2.9"
 urllib3 = ">=1.21.1,<1.25"
+
+[[package]]
+category = "dev"
+description = "a python refactoring library..."
+marker = "extra == \"rope\""
+name = "rope"
+optional = false
+python-versions = "*"
+version = "0.11.0"
 
 [[package]]
 category = "main"
@@ -497,7 +507,7 @@ version = "0.54.0"
 six = "*"
 
 [metadata]
-content-hash = "b3fc37cf9a63c65cafb572df2d49fa30c3e546e170efcbca8418792cb287aee4"
+content-hash = "eb614f38f776b1963ab503b2f2eb194c87fb31a183e793155ce83d80043372fc"
 python-versions = "^3.6"
 
 [metadata.hashes]
@@ -541,6 +551,7 @@ python-jsonrpc-server = ["533434fa982eb42c36ddb0b6758cef8e6eaf46d014f76b70a401b8
 python-language-server = ["51d238ffefda57b23e4a4cf728532ab0a70b778fc7fa765d7a910fd08683d2fa"]
 pywin32 = ["22e218832a54ed206452c8f3ca9eff07ef327f8e597569a4c2828be5eaa09a77", "32b37abafbfeddb0fe718008d6aada5a71efa2874f068bee1f9e703983dcc49a", "35451edb44162d2f603b5b18bd427bc88fcbc74849eaa7a7e7cfe0f507e5c0c8", "4eda2e1e50faa706ff8226195b84fbcbd542b08c842a9b15e303589f85bfb41c", "5f265d72588806e134c8e1ede8561739071626ea4cc25c12d526aa7b82416ae5", "6852ceac5fdd7a146b570655c37d9eacd520ed1eaeec051ff41c6fc94243d8bf", "6dbc4219fe45ece6a0cc6baafe0105604fdee551b5e876dc475d3955b77190ec", "9bd07746ce7f2198021a9fa187fa80df7b221ec5e4c234ab6f00ea355a3baf99"]
 requests = ["502a824f31acdacb3a35b6690b5fbf0bc41d63a24a45c4004352b0242707598e", "7bf2a778576d825600030a110f3c0e3e8edc51dfaafe1c146e39a2027784957b"]
+rope = ["a108c445e1cd897fe19272ab7877d172e7faf3d4148c80e7d20faba42ea8f7b2"]
 semver = ["41c9aa26c67dc16c54be13074c352ab666bce1fa219c7110e8f03374cd4206b0", "5b09010a66d9a3837211bb7ae5a20d10ba88f8cb49e92cb139a69ef90d5060d8"]
 six = ["3350809f0555b11f552448330d0b52d5f24c91a322ea4a15ef22629740f3761c", "d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73"]
 smmap2 = ["0555a7bf4df71d1ef4218e4807bbf9b201f910174e6e08af2e138d4e517b4dde", "29a9ffa0497e7f2be94ca0ed1ca1aa3cd4cf25a1f6b4f5f87f74b46ed91d609a"]

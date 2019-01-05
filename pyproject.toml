@@ -20,7 +20,7 @@ docker = "^3.6"
 GitPython = "^2.1"
 
 [tool.poetry.dev-dependencies]
-python-language-server = "^0.21.4"
+python-language-server = {version = "^0.21.4",extras = ["rope"]}
 pytest-cov = "^2.6"
 ipdb = "^0.11.0"
 isort = "^4.3"

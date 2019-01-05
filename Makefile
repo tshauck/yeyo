@@ -8,3 +8,7 @@ build:
 .PHONY: publish
 publish:
 	poetry publish
+
+.PHONY: pydocstyle
+pydocstyle:
+	pydocstyle

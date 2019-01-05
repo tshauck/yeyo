@@ -23,8 +23,7 @@ STARTING_FILE = Path("VERSION")
 
 
 def with_git(f):
-    """A decorator to add options for creating a git tag before or after the version bump."""
-
+    """Wrap a command to add options for creating a git tag before or after the version bump."""
     @click.option(
         "--git-tag-before/--no-git-tag-before",
         default=False,
@@ -43,8 +42,7 @@ def with_git(f):
 
 
 def with_prerel(f):
-    """A decorator to add the prerel option, which if True means to bump with a prerelease."""
-
+    """Wrap a command to add the prerel option, which if True means to bump with a prerelease."""
     @click.option("--prerel/--no-prerel", default=True)
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
@@ -54,8 +52,7 @@ def with_prerel(f):
 
 
 def with_dryrun(f):
-    """A decorator to add the option dryrun, which if True means not to overwrite the files."""
-
+    """Wrap a command to add the option dryrun, which if True means not to overwrite the files."""
     @click.option("--dryrun/--no-dryrun", default=False)
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
@@ -67,7 +64,8 @@ def with_dryrun(f):
 @click.group()
 @click.pass_context
 def main(ctx):
-    """Hey-o for yeyo.
+    """
+    Hey-o for yeyo.
 
     yeyo is a command line interface for managing versioning in software development.
 
@@ -91,7 +89,7 @@ def version():
 
 @main.group()
 def dev():
-    """Entrypoint for yeyo related development commands. E.g. building its docker image."""
+    """Entrypoint for yeyo related development commands, e.g. building its docker image."""
 
 
 @dev.command()
@@ -113,8 +111,7 @@ def test():
 @click.option("-p", "--password", help="The password to use to authenticate to docker.")
 @click.pass_context
 def docker(ctx, image, tags, username, password):
-    """A docker group with commands for working with yeyo's docker image."""
-
+    """Create a docker group with commands for working with yeyo's docker image."""
     ctx.obj["client"] = dockerpy.from_env()
     ctx.obj["client"].login(username, password)
 
@@ -126,7 +123,6 @@ def docker(ctx, image, tags, username, password):
 @click.pass_context
 def build(ctx):
     """Build the docker image with the appropriate tags."""
-
     image, _ = ctx.obj["client"].images.build(
         path=".", tag=ctx.obj["tags"], dockerfile="Dockerfile"
     )
@@ -137,7 +133,6 @@ def build(ctx):
 @click.pass_context
 def push(ctx):
     """Push the docker image to docker hub."""
-
     push = ctx.obj["client"].images.push(ctx.obj["image"])
     print(json.dumps(push, indent=2).replace(r"\r\n", "\n"))
 
@@ -161,7 +156,8 @@ def push(ctx):
 )
 @click.pass_context
 def init(ctx, starting_version, files, tag_template, commit_template):
-    """Initialize a project with a yeyo config.
+    """
+    Initialize a project with a yeyo config.
 
     For example, to initialize a repo that has a setup.py file and a mod/__init__.py to track, and
     we'd like the version to start at 0.1.0:
@@ -177,7 +173,6 @@ def init(ctx, starting_version, files, tag_template, commit_template):
     * Adding or removing files, see: $ yeyo files --help
     * Version bumping, see: $ yeyo bump --help
     """
-
     p = YeyoConfig(
         version=parse_version_info(starting_version),
         tag_template=tag_template,
@@ -190,7 +185,8 @@ def init(ctx, starting_version, files, tag_template, commit_template):
 @main.group()
 @click.pass_context
 def bump(ctx):
-    """Entrypoint for version bumping.
+    """
+    Entrypoint for version bumping.
 
     Running these commands will modify the files which are tracked by yeyo (see the command `yeyo
     files ls`) by updating the contents and replacing the version with the bumped version.
@@ -214,7 +210,7 @@ def bump(ctx):
 @with_dryrun
 @with_git
 def major(ctx, **kwargs):
-    """Bump the major part of the version: X.0.0"""
+    """Bump the major part of the version: X.0.0."""
     yc = ctx.obj["yc"]
 
     new_config = yc.bump_major()
@@ -236,7 +232,7 @@ def major(ctx, **kwargs):
 @with_dryrun
 @with_git
 def minor(ctx, **kwargs):
-    """Bump the minor part of the version: 0.X.0"""
+    """Bump the minor part of the version: 0.X.0."""
     yc = ctx.obj["yc"]
 
     new_config = yc.bump_minor()
@@ -258,7 +254,7 @@ def minor(ctx, **kwargs):
 @with_dryrun
 @with_git
 def patch(ctx, **kwargs):
-    """Bump the patch part of the version: 0.0.X"""
+    """Bump the patch part of the version: 0.0.X."""
     yc = ctx.obj["yc"]
 
     new_config = yc.bump_patch()

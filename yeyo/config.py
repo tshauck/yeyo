@@ -33,7 +33,6 @@ class YeyoConfig(object):
         files: Optional[Set[Path]] = None,
     ):
         """Initialize a YeyoConfig with a version and a set of files."""
-
         self.version = version
         self.tag_template = tag_template
         self.commit_template = commit_template
@@ -51,32 +50,27 @@ class YeyoConfig(object):
 
     def remove_file(self, file_path: Path) -> "YeyoConfig":
         """Create a new config object with file_path removed from the files."""
-
         file_copy = copy.copy(self.files)
         file_copy.remove(file_path)
         return YeyoConfig(self.version, self.tag_template, self.commit_template, file_copy)
 
     def add_file(self, file_path: Path) -> "YeyoConfig":
         """Create a new config object with file_path added to the files."""
-
         file_copy = copy.copy(self.files)
         file_copy.add(file_path)
         return YeyoConfig(self.version, self.tag_template, self.commit_template, file_copy)
 
     def add_files(self, file_paths: Set[Path]) -> "YeyoConfig":
         """Add a set of paths to the config."""
-
         return YeyoConfig(self.version, self.tag_template, self.commit_template, self.files.union(file_paths))
 
     def get_templated_tag(self, **kwargs):
         """Render the tag template, kwargs are passed to the jinja template."""
-
         t = Template(self.tag_template)
         return t.render(version=self.version_string, files=self.files, **kwargs)
 
     def get_templated_commit(self, **kwargs):
         """Render the commit template, kwargs are passed to the jinja template."""
-
         t = Template(self.commit_template)
         return t.render(version=self.version_string, files=self.files, **kwargs)
 
@@ -104,7 +98,6 @@ class YeyoConfig(object):
             out_handler.write("\n")
 
     def _update_files(self, old_yeyo_config: "YeyoConfig", dryrun: bool):
-
         file_list = [str(s) for s in self.files]
         inplace = not dryrun
 
@@ -132,7 +125,6 @@ class YeyoConfig(object):
         git_tag_after: bool = False,
     ):
         """Find the version from the prior config and replace them."""
-
         if git_tag_before and not dryrun:
             self._tag_before()
 
@@ -155,7 +147,6 @@ class YeyoConfig(object):
         return {str(p) for p in self.files}
 
     def _tag_after(self: "YeyoConfig"):
-
         repo = git.Repo(".")
 
         extra_files = {Path(p) for p in repo.untracked_files} - self.files
@@ -176,7 +167,6 @@ class YeyoConfig(object):
         repo.create_tag(tag_string)
 
     def _tag_before(self: "YeyoConfig"):
-
         tag_string = self.get_templated_tag()
 
         repo = git.Repo(".")
@@ -223,7 +213,6 @@ class YeyoConfig(object):
 
     def bump_prerelease(self, prerelease_token: Optional[str] = None):
         """Bump the config to the next prerelease version."""
-
         if self.version.prerelease is None:
             return YeyoConfig.from_version_string(
                 self._new_version(semver.bump_prerelease, token="dev"),
