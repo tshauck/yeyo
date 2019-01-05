@@ -8,6 +8,8 @@
 - Add files subcommand and its subcommands.
 - Add dryrun option.
 - Modularized generic input options.
-- `yeyo test` runs the tests.
+- `yeyo dev test` runs the tests.
+- `yeyo print-usage` that prints out the usage of yeyo in markdown format.
+- `yeyo dev docker ...` for working with yeyo's docker images.
 
 [0.0.1]: https://github.com/tshauck/yeyo/compare/v0.0.0...0.0.1

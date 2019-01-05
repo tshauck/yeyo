@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import List, NamedTuple
 
 from click.testing import CliRunner
+
 from yeyo import cli
 from yeyo.cli import DEFAULT_CONFIG_PATH, STARTING_VERSION
 from yeyo.config import YeyoConfig

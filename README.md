@@ -11,6 +11,23 @@
 $ pip install yeyo
 ```
 
+## Yeyo X Docker
+
+If you'd like to use yeyo through docker, you can do so by first pulling the image:
+
+```console
+# In practice, you should pin to a particular version.
+$ docker pull thauck/yeyo:latest
+```
+
+Then, run a container and mount the project directory to `/project`. For example,
+
+```console
+docker run -it -v $(pwd):/project thauck/yeyo:latest init
+```
+
+will initialize the host directory from the docker container.
+
 ## Usage
 
 How to (mis)use yeyo.

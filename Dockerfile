@@ -6,11 +6,11 @@ WORKDIR /yeyo
 COPY ./pyproject.toml ./poetry.lock ./
 
 RUN poetry config settings.virtualenvs.create false
-RUN poetry install
+RUN poetry install --no-dev
 
 COPY ./ ./
-RUN poetry install
+RUN poetry install --no-dev
 
-WORKDIR /app
+WORKDIR /project
 
 ENTRYPOINT ["yeyo"]
