@@ -17,6 +17,7 @@ pytest = "^4.0"
 jinja2 = "^2.10"
 requests = "^2.21"
 docker = "^3.6"
+GitPython = "^2.1"
 
 [tool.poetry.dev-dependencies]
 python-language-server = "^0.21.4"
