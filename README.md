@@ -54,10 +54,14 @@ Usage: init [OPTIONS]
   * Version bumping, see: $ yeyo bump --help
 
 Options:
-  --starting-version TEXT  The version to start with.
-  -f, --files TEXT         The list of files to add to the config at the
-                           outset.
-  --help                   Show this message and exit.
+  --starting-version TEXT     The version to start with.
+  -f, --files TEXT            The list of files to add to the config at the
+                              outset.
+  -t, --tag-template TEXT     A jinja2 templated string that will be used for
+                              git tags.
+  -c, --commit-template TEXT  A jinja2 templated string that will be used for
+                              git commits.
+  --help                      Show this message and exit.
 ```
 
 ### Command: version
@@ -148,9 +152,9 @@ Options:
 
 Commands:
   finalize    Finalize the current version by dropping any prerelease...
-  major       Bump the major part of the version: X.0.0
-  minor       Bump the minor part of the version: 0.X.0
-  patch       Bump the patch part of the version: 0.0.X
+  major       Bump the major part of the version: X.0.0.
+  minor       Bump the minor part of the version: 0.X.0.
+  patch       Bump the patch part of the version: 0.0.X.
   prerelease  Bump the prerelease part of the version.
 ```
 
@@ -159,12 +163,17 @@ Commands:
 ```console
 Usage: major [OPTIONS]
 
-  Bump the major part of the version: X.0.0
+  Bump the major part of the version: X.0.0.
 
 Options:
   --prerel / --no-prerel
   --dryrun / --no-dryrun
-  --help                  Show this message and exit.
+  --git-tag-before / --no-git-tag-before
+                                  If True, tag the repo, then version bump.
+  --git-tag-after / --no-git-tag-after
+                                  If True, bump, then commit the changed files
+                                  and tag the repo.
+  --help                          Show this message and exit.
 ```
 
 #### Command: minor
@@ -172,12 +181,17 @@ Options:
 ```console
 Usage: minor [OPTIONS]
 
-  Bump the minor part of the version: 0.X.0
+  Bump the minor part of the version: 0.X.0.
 
 Options:
   --prerel / --no-prerel
   --dryrun / --no-dryrun
-  --help                  Show this message and exit.
+  --git-tag-before / --no-git-tag-before
+                                  If True, tag the repo, then version bump.
+  --git-tag-after / --no-git-tag-after
+                                  If True, bump, then commit the changed files
+                                  and tag the repo.
+  --help                          Show this message and exit.
 ```
 
 #### Command: patch
@@ -185,12 +199,17 @@ Options:
 ```console
 Usage: patch [OPTIONS]
 
-  Bump the patch part of the version: 0.0.X
+  Bump the patch part of the version: 0.0.X.
 
 Options:
   --prerel / --no-prerel
   --dryrun / --no-dryrun
-  --help                  Show this message and exit.
+  --git-tag-before / --no-git-tag-before
+                                  If True, tag the repo, then version bump.
+  --git-tag-after / --no-git-tag-after
+                                  If True, bump, then commit the changed files
+                                  and tag the repo.
+  --help                          Show this message and exit.
 ```
 
 #### Command: prerelease
@@ -201,9 +220,14 @@ Usage: prerelease [OPTIONS]
   Bump the prerelease part of the version.
 
 Options:
+  -p, --prerelease_token [dev|a|b|rc]
   --prerel / --no-prerel
   --dryrun / --no-dryrun
-  -p, --prerelease_token [dev|a|b|rc]
+  --git-tag-before / --no-git-tag-before
+                                  If True, tag the repo, then version bump.
+  --git-tag-after / --no-git-tag-after
+                                  If True, bump, then commit the changed files
+                                  and tag the repo.
   --help                          Show this message and exit.
 ```
 
@@ -213,6 +237,61 @@ Options:
 Usage: finalize [OPTIONS]
 
   Finalize the current version by dropping any prerelease information.
+
+Options:
+  --dryrun / --no-dryrun
+  --git-tag-before / --no-git-tag-before
+                                  If True, tag the repo, then version bump.
+  --git-tag-after / --no-git-tag-after
+                                  If True, bump, then commit the changed files
+                                  and tag the repo.
+  --help                          Show this message and exit.
+```
+
+### Group: git
+
+```console
+Usage: git [OPTIONS] COMMAND [ARGS]...
+
+  Entrypoint for git commands.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  render-commit-string  Display what the commit string would be.
+  render-tag-string     Display what the tag string would be.
+  tag                   Tags the repo with the templated tag string.
+```
+
+#### Command: render-tag-string
+
+```console
+Usage: render-tag-string [OPTIONS]
+
+  Display what the tag string would be.
+
+Options:
+  --help  Show this message and exit.
+```
+
+#### Command: render-commit-string
+
+```console
+Usage: render-commit-string [OPTIONS]
+
+  Display what the commit string would be.
+
+Options:
+  --help  Show this message and exit.
+```
+
+#### Command: tag
+
+```console
+Usage: tag [OPTIONS]
+
+  Tags the repo with the templated tag string.
 
 Options:
   --dryrun / --no-dryrun

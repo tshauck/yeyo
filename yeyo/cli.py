@@ -24,6 +24,7 @@ STARTING_FILE = Path("VERSION")
 
 def with_git(f):
     """Wrap a command to add options for creating a git tag before or after the version bump."""
+
     @click.option(
         "--git-tag-before/--no-git-tag-before",
         default=False,
@@ -43,7 +44,12 @@ def with_git(f):
 
 def with_prerel(f):
     """Wrap a command to add the prerel option, which if True means to bump with a prerelease."""
-    @click.option("--prerel/--no-prerel", default=True)
+
+    @click.option(
+        "--prerel/--no-prerel",
+        default=True,
+        help="If True, also make the version a prerelease version.",
+    )
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         return f(*args, **kwargs)
@@ -53,7 +59,12 @@ def with_prerel(f):
 
 def with_dryrun(f):
     """Wrap a command to add the option dryrun, which if True means not to overwrite the files."""
-    @click.option("--dryrun/--no-dryrun", default=False)
+
+    @click.option(
+        "--dryrun/--no-dryrun",
+        default=False,
+        help="If True, do not actually write files, just log the output. Defaults to False.",
+    )
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         return f(*args, **kwargs)
@@ -79,6 +90,38 @@ def main(ctx):
     """
     ctx.ensure_object(dict)
     ctx.obj["config_path"] = Path(DEFAULT_CONFIG_PATH)
+
+
+@main.group()
+@click.pass_context
+def git(ctx):
+    """Entrypoint for git commands."""
+    ctx.obj["yc"] = YeyoConfig.from_json(ctx.obj["config_path"])
+
+
+@git.command()
+@click.pass_context
+def render_tag_string(ctx):
+    """Display what the tag string would be."""
+    click.echo(ctx.obj["yc"].get_templated_tag())
+
+
+@git.command()
+@click.pass_context
+def render_commit_string(ctx):
+    """Display what the commit string would be."""
+    click.echo(ctx.obj["yc"].get_templated_commit())
+
+
+@git.command()
+@click.pass_context
+@with_dryrun
+def tag(ctx, **kwargs):
+    """Tags the repo with the templated tag string."""
+    if kwargs["dryrun"]:
+        click.echo(ctx.obj["yc"].get_templated_tag())
+    else:
+        ctx.obj["yc"].tag_repo()
 
 
 @main.command()
@@ -299,7 +342,13 @@ def finalize(ctx, **kwargs):
     yc = ctx.obj["yc"]
 
     new_config = yc.finalize()
-    new_config.update(yc, ctx.obj["config_path"], kwargs["dryrun"])
+    new_config.update(
+        yc,
+        ctx.obj["config_path"],
+        kwargs["dryrun"],
+        kwargs["git_tag_before"],
+        kwargs["git_tag_after"],
+    )
 
 
 @main.group()
@@ -375,7 +424,7 @@ How to (mis)use yeyo.
 @click.pass_context
 def print_usage(ctx):
     """Echo the usage combined into a markdown format."""
-    groups = [files, bump]
+    groups = [files, bump, git]
     commands = [init, version]
 
     t = Template(_USAGE)

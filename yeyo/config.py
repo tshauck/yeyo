@@ -62,7 +62,9 @@ class YeyoConfig(object):
 
     def add_files(self, file_paths: Set[Path]) -> "YeyoConfig":
         """Add a set of paths to the config."""
-        return YeyoConfig(self.version, self.tag_template, self.commit_template, self.files.union(file_paths))
+        return YeyoConfig(
+            self.version, self.tag_template, self.commit_template, self.files.union(file_paths)
+        )
 
     def get_templated_tag(self, **kwargs):
         """Render the tag template, kwargs are passed to the jinja template."""
@@ -126,7 +128,7 @@ class YeyoConfig(object):
     ):
         """Find the version from the prior config and replace them."""
         if git_tag_before and not dryrun:
-            self._tag_before()
+            self._tag_repo()
 
         if self.files:
             self._update_files(old_yeyo_config, dryrun)
@@ -149,28 +151,33 @@ class YeyoConfig(object):
     def _tag_after(self: "YeyoConfig"):
         repo = git.Repo(".")
 
-        extra_files = {Path(p) for p in repo.untracked_files} - self.files
+        extra_files = {Path(p) for p in repo.untracked_files} - self.files.union(
+            {Path(DEFAULT_CONFIG_PATH)}
+        )
         if extra_files:
             raise YeyoDirtyRepoException(
                 f"Repo is dirty, these extra files have changes: {extra_files}."
             )
 
         if self.files:
-            repo.index.add(self.files)
+            repo.index.add(self.string_files)
 
-        repo.index.add([DEFAULT_CONFIG_PATH])
+        repo.index.add([str(DEFAULT_CONFIG_PATH)])
 
         commit_string = self.get_templated_commit()
         repo.index.commit(commit_string)
 
-        tag_string = self.get_templated_tag()
-        repo.create_tag(tag_string)
+        self._tag_repo()
 
-    def _tag_before(self: "YeyoConfig"):
+    def _tag_repo(self: "YeyoConfig"):
         tag_string = self.get_templated_tag()
 
         repo = git.Repo(".")
         repo.create_tag(tag_string)
+
+    def tag_repo(self: "YeyoConfig"):
+        """Tag the current repo with the templated string."""
+        self._tag_repo()
 
     def _new_version(self, func, *args, **kwargs):
         return func(self.version_string, *args, **kwargs)
@@ -289,7 +296,7 @@ class YeyoConfigDecoder(json.JSONDecoder):
         version = semver.parse_version_info(obj["version"])
         files = set([Path(p) for p in obj["files"]])
 
-        tag_template = obj["tag_template"]
-        commit_template = obj["commit_template"]
+        tag_template = obj.get("tag_template", DEFAULT_TAG_TEMPLATE)
+        commit_template = obj.get("commit_template", DEFAULT_COMMIT_TEMPLATE)
 
         return YeyoConfig(version, tag_template, commit_template, files)
