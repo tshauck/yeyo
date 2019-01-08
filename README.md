@@ -4,6 +4,32 @@
 
 [![](https://img.shields.io/pypi/v/yeyo.svg)](https://pypi.python.org/pypi/yeyo)
 [![](https://img.shields.io/travis/tshauck/yeyo.svg)](https://travis-ci.org/tshauck/yeyo)
+[![](https://img.shields.io/docker/pulls/thauck/yeyo.svg)](https://hub.docker.com/r/thauck/yeyo)
+
+<!-- vim-markdown-toc GFM -->
+
+* [Installation](#installation)
+  * [Python Package](#python-package)
+  * [Use with Docker](#use-with-docker)
+* [Usage](#usage)
+  * [Command: init](#command-init)
+  * [Command: version](#command-version)
+  * [Group: files](#group-files)
+    * [Command: ls](#command-ls)
+    * [Command: rm](#command-rm)
+    * [Command: add](#command-add)
+  * [Group: bump](#group-bump)
+    * [Command: major](#command-major)
+    * [Command: minor](#command-minor)
+    * [Command: patch](#command-patch)
+    * [Command: prerelease](#command-prerelease)
+    * [Command: finalize](#command-finalize)
+  * [Group: git](#group-git)
+    * [Command: render-tag-string](#command-render-tag-string)
+    * [Command: render-commit-string](#command-render-commit-string)
+    * [Command: tag](#command-tag)
+
+<!-- vim-markdown-toc -->
 
 ## Installation
 

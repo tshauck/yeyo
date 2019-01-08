@@ -12,6 +12,7 @@ import py
 from jinja2 import Template
 from semver import parse_version_info
 
+from yeyo import BANNER
 from yeyo import __version__
 from yeyo.config import DEFAULT_COMMIT_TEMPLATE
 from yeyo.config import DEFAULT_CONFIG_PATH
@@ -92,6 +93,12 @@ def main(ctx):
     ctx.obj["config_path"] = Path(DEFAULT_CONFIG_PATH)
 
 
+@main.command()
+def banner():
+    """Print the banner."""
+    click.echo(click.style(BANNER, blink=True, bold=True))
+
+
 @main.group()
 @click.pass_context
 def git(ctx):
@@ -126,7 +133,7 @@ def tag(ctx, **kwargs):
 
 @main.command()
 def version():
-    """Print the version and exit."""
+    """Print yeyo's version and exit."""
     click.echo(__version__)
 
 
