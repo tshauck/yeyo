@@ -1,6 +1,6 @@
 # yeyo
 
-> yeyo is a package for automatically managing versions in software repos.
+> yeyo is a command line tool for managing versions across file types within a repo.
 
 [![](https://img.shields.io/pypi/v/yeyo.svg)](https://pypi.python.org/pypi/yeyo)
 [![](https://img.shields.io/travis/tshauck/yeyo.svg)](https://travis-ci.org/tshauck/yeyo)
@@ -25,7 +25,7 @@ $ docker pull thauck/yeyo:latest
 Then, run a container and mount the project directory to `/project`. For example,
 
 ```console
-docker run -it -v $(pwd):/project thauck/yeyo:latest init
+$ docker run -it -v $(pwd):/project thauck/yeyo:latest init
 ```
 
 will initialize the host directory from the docker container.
@@ -99,7 +99,8 @@ Usage: ls [OPTIONS]
   List of the files present in yeyo's config.
 
 Options:
-  --dryrun / --no-dryrun
+  --dryrun / --no-dryrun  If True, do not actually write files, just log the
+                          output. Defaults to False.
   --help                  Show this message and exit.
 ```
 
@@ -166,8 +167,10 @@ Usage: major [OPTIONS]
   Bump the major part of the version: X.0.0.
 
 Options:
-  --prerel / --no-prerel
-  --dryrun / --no-dryrun
+  --prerel / --no-prerel          If True, also make the version a prerelease
+                                  version.
+  --dryrun / --no-dryrun          If True, do not actually write files, just
+                                  log the output. Defaults to False.
   --git-tag-before / --no-git-tag-before
                                   If True, tag the repo, then version bump.
   --git-tag-after / --no-git-tag-after
@@ -184,8 +187,10 @@ Usage: minor [OPTIONS]
   Bump the minor part of the version: 0.X.0.
 
 Options:
-  --prerel / --no-prerel
-  --dryrun / --no-dryrun
+  --prerel / --no-prerel          If True, also make the version a prerelease
+                                  version.
+  --dryrun / --no-dryrun          If True, do not actually write files, just
+                                  log the output. Defaults to False.
   --git-tag-before / --no-git-tag-before
                                   If True, tag the repo, then version bump.
   --git-tag-after / --no-git-tag-after
@@ -202,8 +207,10 @@ Usage: patch [OPTIONS]
   Bump the patch part of the version: 0.0.X.
 
 Options:
-  --prerel / --no-prerel
-  --dryrun / --no-dryrun
+  --prerel / --no-prerel          If True, also make the version a prerelease
+                                  version.
+  --dryrun / --no-dryrun          If True, do not actually write files, just
+                                  log the output. Defaults to False.
   --git-tag-before / --no-git-tag-before
                                   If True, tag the repo, then version bump.
   --git-tag-after / --no-git-tag-after
@@ -221,8 +228,10 @@ Usage: prerelease [OPTIONS]
 
 Options:
   -p, --prerelease_token [dev|a|b|rc]
-  --prerel / --no-prerel
-  --dryrun / --no-dryrun
+  --prerel / --no-prerel          If True, also make the version a prerelease
+                                  version.
+  --dryrun / --no-dryrun          If True, do not actually write files, just
+                                  log the output. Defaults to False.
   --git-tag-before / --no-git-tag-before
                                   If True, tag the repo, then version bump.
   --git-tag-after / --no-git-tag-after
@@ -239,7 +248,8 @@ Usage: finalize [OPTIONS]
   Finalize the current version by dropping any prerelease information.
 
 Options:
-  --dryrun / --no-dryrun
+  --dryrun / --no-dryrun          If True, do not actually write files, just
+                                  log the output. Defaults to False.
   --git-tag-before / --no-git-tag-before
                                   If True, tag the repo, then version bump.
   --git-tag-after / --no-git-tag-after
@@ -294,6 +304,7 @@ Usage: tag [OPTIONS]
   Tags the repo with the templated tag string.
 
 Options:
-  --dryrun / --no-dryrun
+  --dryrun / --no-dryrun  If True, do not actually write files, just log the
+                          output. Defaults to False.
   --help                  Show this message and exit.
 ```
