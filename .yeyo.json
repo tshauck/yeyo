@@ -1,1 +1,1 @@
-{"files": ["VERSION", "yeyo/__init__.py", "pyproject.toml"], "version": "0.0.1", "tag_template": "{{ version }}", "commit_template": "{{ version }}"}
+{"files": ["pyproject.toml", "VERSION", "yeyo/__init__.py"], "version": "0.1.0", "tag_template": "{{ version }}", "commit_template": "{{ version }}"}
