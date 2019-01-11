@@ -2,7 +2,7 @@
 # All Rights Reserved
 """The base module for the yeyo package."""
 
-__version__ = "0.0.1-rc.3"
+__version__ = "0.0.1"
 
 BANNER = """
  /$$   /$$
