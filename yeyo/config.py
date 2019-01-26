@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 from typing import Optional
 from typing import Set
+from typing import NamedTuple
 
 import git
 import semver
@@ -17,9 +18,23 @@ DEFAULT_TAG_TEMPLATE = "{{ version }}"
 DEFAULT_COMMIT_TEMPLATE = "{{ version }}"
 DEFAULT_CONFIG_PATH = ".yeyo.json"
 
+YEYO_VERSION_TEMPLATE = "YEYO_VERSION_TEMPLATE"
+
 
 class YeyoDirtyRepoException(Exception):
     """Raised when more files than just the tracked changes are raised."""
+
+
+class FileVersion(NamedTuple):
+    file_path: Path
+    match_template: str
+
+    def replace(self, s: str, v1: semver.VersionInfo, v2: semver.VersionInfo) -> str:
+        """Given the input string, s, use the template to find v1 and replace it with v2."""
+
+        search_string = self.match_template.replace(YEYO_VERSION_TEMPLATE, str(v1))
+        replace_string = self.match_template.replace(YEYO_VERSION_TEMPLATE, str(v2))
+        return s.replace(search_string, replace_string)
 
 
 class YeyoConfig(object):
@@ -30,7 +45,7 @@ class YeyoConfig(object):
         version: semver.VersionInfo,
         tag_template: str = DEFAULT_TAG_TEMPLATE,
         commit_template: str = DEFAULT_COMMIT_TEMPLATE,
-        files: Optional[Set[Path]] = None,
+        files: Optional[Set[FileVersion]] = None,
     ):
         """Initialize a YeyoConfig with a version and a set of files."""
         self.version = version
@@ -50,21 +65,15 @@ class YeyoConfig(object):
 
     def remove_file(self, file_path: Path) -> "YeyoConfig":
         """Create a new config object with file_path removed from the files."""
-        file_copy = copy.copy(self.files)
-        file_copy.remove(file_path)
-        return YeyoConfig(self.version, self.tag_template, self.commit_template, file_copy)
+        file_versions = {fv for fv in self.files if fv.file_path != file_path}
+        return YeyoConfig(self.version, self.tag_template, self.commit_template, file_versions)
 
-    def add_file(self, file_path: Path) -> "YeyoConfig":
+    def add_file(self, file_path: Path, match_template: str) -> "YeyoConfig":
         """Create a new config object with file_path added to the files."""
         file_copy = copy.copy(self.files)
-        file_copy.add(file_path)
-        return YeyoConfig(self.version, self.tag_template, self.commit_template, file_copy)
+        file_copy.add(FileVersion(file_path, match_template))
 
-    def add_files(self, file_paths: Set[Path]) -> "YeyoConfig":
-        """Add a set of paths to the config."""
-        return YeyoConfig(
-            self.version, self.tag_template, self.commit_template, self.files.union(file_paths)
-        )
+        return YeyoConfig(self.version, self.tag_template, self.commit_template, file_copy)
 
     def get_templated_tag(self, **kwargs):
         """Render the tag template, kwargs are passed to the jinja template."""
@@ -82,10 +91,17 @@ class YeyoConfig(object):
         version_string: str,
         tag_template: str,
         commit_template: str,
-        f: Optional[Set[Path]] = None,
+        file_versions: Optional[Set[FileVersion]] = None,
     ):
         """Create a YeyoConfig from a version string."""
-        return cls(semver.parse_version_info(version_string), tag_template, commit_template, f)
+
+        if file_versions is None:
+            file_versions = set()
+
+        config = cls(semver.parse_version_info(version_string), tag_template, commit_template)
+        for f in file_versions:
+            config = config.add_file(f.file_path, f.match_template)
+        return config
 
     @classmethod
     def from_json(cls, p: Path):
@@ -100,23 +116,23 @@ class YeyoConfig(object):
             out_handler.write("\n")
 
     def _update_files(self, old_yeyo_config: "YeyoConfig", dryrun: bool):
-        file_list = [str(s) for s in self.files]
         inplace = not dryrun
 
-        with fileinput.input(files=file_list, inplace=inplace) as f:
-            for line in f:
+        for fv in self.files:
+            with fileinput.input(files=[str(fv.file_path)], inplace=inplace) as f:
+                for line in f:
 
-                filename = fileinput.filename()
-                new_line = line.replace(old_yeyo_config.version_string, self.version_string)
+                    filename = fileinput.filename()
+                    new_line = fv.replace(line, old_yeyo_config.version, self.version)
 
-                if dryrun and old_yeyo_config.version_string in line:
-                    print(
-                        f"Replacing line: {line} with {new_line} in file {filename}.".replace(
-                            "\n", ""
+                    if dryrun and old_yeyo_config.version_string in line:
+                        print(
+                            f"Replacing line: {line} with {new_line} in file {filename}.".replace(
+                                "\n", ""
+                            )
                         )
-                    )
-                elif not dryrun:
-                    print(line.replace(old_yeyo_config.version_string, self.version_string), end="")
+                    elif not dryrun:
+                        print(new_line, end="")
 
     def update(
         self,
@@ -146,14 +162,13 @@ class YeyoConfig(object):
     @property
     def string_files(self):
         """Convert the set of Paths at self.files to a set of strings."""
-        return {str(p) for p in self.files}
+        return {str(p.file_path) for p in self.files}
 
     def _tag_after(self: "YeyoConfig"):
         repo = git.Repo(".")
 
-        extra_files = {Path(p) for p in repo.untracked_files} - self.files.union(
-            {Path(DEFAULT_CONFIG_PATH)}
-        )
+        file_paths = {p.file_path for p in self.files}.union({Path(DEFAULT_CONFIG_PATH)})
+        extra_files = {Path(p) for p in repo.untracked_files} - file_paths
         if extra_files:
             raise YeyoDirtyRepoException(
                 f"Repo is dirty, these extra files have changes: {extra_files}."
@@ -272,7 +287,9 @@ class YeyoConfigEncoder(json.JSONEncoder):
         """Handle the deserialization of the object."""
         if isinstance(o, YeyoConfig):
             d = {}
-            d["files"] = [str(p) for p in o.files]
+            d["files"] = [
+                {"file_path": str(p.file_path), "match_template": p.match_template} for p in o.files
+            ]
             d["version"] = o.version_string
             d["tag_template"] = o.tag_template
             d["commit_template"] = o.commit_template
@@ -293,8 +310,16 @@ class YeyoConfigDecoder(json.JSONDecoder):
 
     def object_hook(self, obj):
         """Given the object passed, return a YeyoConfig object."""
+
+        if set(obj.keys()) == {"file_path", "match_template"}:
+            return FileVersion(Path(obj["file_path"]), obj["match_template"])
+
         version = semver.parse_version_info(obj["version"])
-        files = set([Path(p) for p in obj["files"]])
+
+        files = []
+        for fv in obj["files"]:
+            files.append(fv)
+        files = set(files)
 
         tag_template = obj.get("tag_template", DEFAULT_TAG_TEMPLATE)
         commit_template = obj.get("commit_template", DEFAULT_COMMIT_TEMPLATE)

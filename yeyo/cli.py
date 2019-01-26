@@ -18,6 +18,7 @@ from yeyo.config import DEFAULT_COMMIT_TEMPLATE
 from yeyo.config import DEFAULT_CONFIG_PATH
 from yeyo.config import DEFAULT_TAG_TEMPLATE
 from yeyo.config import YeyoConfig
+from yeyo.config import YEYO_VERSION_TEMPLATE
 
 STARTING_VERSION = "0.0.0-dev.1"
 STARTING_FILE = Path("VERSION")
@@ -190,9 +191,6 @@ def push(ctx):
 @main.command()
 @click.option("--starting-version", default=STARTING_VERSION, help="The version to start with.")
 @click.option(
-    "-f", "--files", multiple=True, help="The list of files to add to the config at the outset."
-)
-@click.option(
     "-t",
     "--tag-template",
     default=DEFAULT_TAG_TEMPLATE,
@@ -204,8 +202,9 @@ def push(ctx):
     default=DEFAULT_COMMIT_TEMPLATE,
     help="A jinja2 templated string that will be used for git commits.",
 )
+@click.option("--default/--no-default", default=False)
 @click.pass_context
-def init(ctx, starting_version, files, tag_template, commit_template):
+def init(ctx, starting_version, tag_template, commit_template, default):
     """
     Initialize a project with a yeyo config.
 
@@ -227,8 +226,11 @@ def init(ctx, starting_version, files, tag_template, commit_template):
         version=parse_version_info(starting_version),
         tag_template=tag_template,
         commit_template=commit_template,
-        files=set(files),
     )
+
+    if default:
+        p = p.add_file(STARTING_FILE, YEYO_VERSION_TEMPLATE)
+
     p.to_json(ctx.obj["config_path"])
 
 
@@ -388,12 +390,13 @@ def rm(ctx, path, **kwargs):
 
 @files.command()
 @click.pass_context
-@click.argument("path", nargs=-1)
-def add(ctx, path, **kwargs):
-    """Add one or more files to the yeyo config."""
+@click.argument("path")
+@click.argument("template_string")
+def add(ctx, path, template_string):
+    """Add a file path and associated version."""
     yc = ctx.obj["yc"]
 
-    new_config = yc.add_files({Path(p) for p in path})
+    new_config = yc.add_file(Path(path), template_string)
     new_config.to_json(ctx.obj["config_path"])
 
 

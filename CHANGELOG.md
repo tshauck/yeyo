@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0
+
+### Added
+
+- Change config data structure to support storing a file and associated regex for finding the version. This meant to help avoid version collision between two of the same versions in a file that refer to different things.
+
 ## [0.0.1]
 
 ### Added
