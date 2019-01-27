@@ -6,9 +6,9 @@ import copy
 import fileinput
 import json
 from pathlib import Path
+from typing import NamedTuple
 from typing import Optional
 from typing import Set
-from typing import NamedTuple
 
 import git
 import semver
@@ -26,6 +26,8 @@ class YeyoDirtyRepoException(Exception):
 
 
 class FileVersion(NamedTuple):
+    """Contains a file_path and a template to use for search and replace."""
+
     file_path: Path
     match_template: str
 

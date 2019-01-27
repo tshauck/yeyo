@@ -5,15 +5,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import semver
 import pytest
+import semver
 
 from yeyo.config import DEFAULT_COMMIT_TEMPLATE
 from yeyo.config import DEFAULT_TAG_TEMPLATE
-from yeyo.config import YeyoConfig
-from yeyo.config import FileVersion
 from yeyo.config import YEYO_VERSION_TEMPLATE
-
+from yeyo.config import FileVersion
+from yeyo.config import YeyoConfig
 
 version_replace_test = [
     (

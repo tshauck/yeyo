@@ -391,7 +391,7 @@ def rm(ctx, path, **kwargs):
 @files.command()
 @click.pass_context
 @click.argument("path")
-@click.argument("template_string")
+@click.option("-t", "--template_string", default=YEYO_VERSION_TEMPLATE, type=str)
 def add(ctx, path, template_string):
     """Add a file path and associated version."""
     yc = ctx.obj["yc"]

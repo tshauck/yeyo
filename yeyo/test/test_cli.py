@@ -7,8 +7,8 @@ from typing import List
 from typing import NamedTuple
 from typing import Optional
 
-import pytest
 import git
+import pytest
 from click.testing import CliRunner
 from semver import VersionInfo
 
@@ -17,9 +17,9 @@ from yeyo.cli import STARTING_VERSION
 from yeyo.config import DEFAULT_COMMIT_TEMPLATE
 from yeyo.config import DEFAULT_CONFIG_PATH
 from yeyo.config import DEFAULT_TAG_TEMPLATE
-from yeyo.config import YeyoConfig
-from yeyo.config import FileVersion
 from yeyo.config import YEYO_VERSION_TEMPLATE
+from yeyo.config import FileVersion
+from yeyo.config import YeyoConfig
 
 TEST_FILE = Path("VERSION")
 TEST_FILE_VERSION = FileVersion(TEST_FILE, YEYO_VERSION_TEMPLATE)
