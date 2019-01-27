@@ -202,19 +202,25 @@ def push(ctx):
     default=DEFAULT_COMMIT_TEMPLATE,
     help="A jinja2 templated string that will be used for git commits.",
 )
-@click.option("--default/--no-default", default=False)
+@click.option(
+    "--default/--no-default",
+    default=False,
+    help="If True, add a VERSION file as a default file, default value is False.",
+)
 @click.pass_context
 def init(ctx, starting_version, tag_template, commit_template, default):
     """
     Initialize a project with a yeyo config.
 
-    For example, to initialize a repo that has a setup.py file and a mod/__init__.py to track, and
-    we'd like the version to start at 0.1.0:
-
     \b
-    $ yeyo init -f setup.py -f mod/__init__.py --starting-version 0.1.0
-    $ cat .yeyo.json
-    {"files": ["mod/__init__.py", "setup.py"], "version": "0.1.0"}
+    $ yeyo init
+    $ cat .yeyo.json | jq
+    {
+      "files": [],
+      "version": "0.0.0-dev.1",
+      "tag_template": "{{ yeyo_version }}",
+      "commit_template": "{{ yeyo_version }}"
+    }
 
     There are two modes of operation after this:
 
@@ -391,9 +397,45 @@ def rm(ctx, path, **kwargs):
 @files.command()
 @click.pass_context
 @click.argument("path")
-@click.option("-t", "--template_string", default=YEYO_VERSION_TEMPLATE, type=str)
+@click.option(
+    "-t",
+    "--template_string",
+    default=YEYO_VERSION_TEMPLATE,
+    type=str,
+    help="The template string to find and replace with.",
+)
 def add(ctx, path, template_string):
-    """Add a file path and associated version."""
+    """Add a file path and, optionally, an associated search string.
+
+    Imagine we were starting with the same .yeyo.json as the init example -- so we've just run
+    `yeyo init`. Now we want to add a python module to yeyo's tracking, and only replace cases where
+    __version__ = "0.0.1":
+
+    $ yeyo files add __init__.py -t "__version__ = \\"yeyo_version\\""
+
+    `yeyo_version` will be replace with the current version and updated when bumping version.
+
+    \b
+    $ cat .yeyo.json | jq
+    {
+      "files": [
+        {
+          "file_path": "__init__.py",
+          "match_template": "__version__ = \\"yeyo_version\\""
+        }
+      ],
+      "version": "0.0.0-dev.1",
+      "tag_template": "{{ yeyo_version }}",
+      "commit_template": "{{ yeyo_version }}"
+    }
+
+    You might run a version bump in dryrun mode now to see which files would change and how.
+
+    \b
+    $ yeyo bump minor --dryrun
+    Replacing line: __version__ = "0.0.0-dev.1" with __version__ = "0.1.0" in file __init__.py.
+    ...
+    """
     yc = ctx.obj["yc"]
 
     new_config = yc.add_file(Path(path), template_string)

@@ -67,12 +67,14 @@ Usage: init [OPTIONS]
 
   Initialize a project with a yeyo config.
 
-  For example, to initialize a repo that has a setup.py file and a
-  mod/__init__.py to track, and we'd like the version to start at 0.1.0:
-
-  $ yeyo init -f setup.py -f mod/__init__.py --starting-version 0.1.0
-  $ cat .yeyo.json
-  {"files": ["mod/__init__.py", "setup.py"], "version": "0.1.0"}
+  $ yeyo init
+  $ cat .yeyo.json | jq
+  {
+    "files": [],
+    "version": "0.0.0-dev.1",
+    "tag_template": "{{ yeyo_version }}",
+    "commit_template": "{{ yeyo_version }}"
+  }
 
   There are two modes of operation after this:
 
@@ -81,12 +83,12 @@ Usage: init [OPTIONS]
 
 Options:
   --starting-version TEXT     The version to start with.
-  -f, --files TEXT            The list of files to add to the config at the
-                              outset.
   -t, --tag-template TEXT     A jinja2 templated string that will be used for
                               git tags.
   -c, --commit-template TEXT  A jinja2 templated string that will be used for
                               git commits.
+  --default / --no-default    If True, add a VERSION file as a default file,
+                              default value is False.
   --help                      Show this message and exit.
 ```
 
@@ -95,7 +97,7 @@ Options:
 ```console
 Usage: version [OPTIONS]
 
-  Print the version and exit.
+  Print yeyo's version and exit.
 
 Options:
   --help  Show this message and exit.
@@ -112,7 +114,7 @@ Options:
   --help  Show this message and exit.
 
 Commands:
-  add  Add one or more files to the yeyo config.
+  add  Add a file path and, optionally, an associated search string.
   ls   List of the files present in yeyo's config.
   rm   Remove a file from yeyo's config.
 ```
@@ -144,12 +146,42 @@ Options:
 #### Command: add
 
 ```console
-Usage: add [OPTIONS] [PATH]...
+Usage: add [OPTIONS] PATH
 
-  Add one or more files to the yeyo config.
+  Add a file path and, optionally, an associated search string.
+
+  Imagine we were starting with the same .yeyo.json as the init example --
+  so we've just run `yeyo init`. Now we want to add a python module to
+  yeyo's tracking, and only replace cases where __version__ = "0.0.1":
+
+  $ yeyo files add __init__.py -t "__version__ = \"yeyo_version\""
+
+  `yeyo_version` will be replace with the current version and updated when
+  bumping version.
+
+  $ cat .yeyo.json | jq
+  {
+    "files": [
+      {
+        "file_path": "__init__.py",
+        "match_template": "__version__ = \"yeyo_version\""
+      }
+    ],
+    "version": "0.0.0-dev.1",
+    "tag_template": "{{ yeyo_version }}",
+    "commit_template": "{{ yeyo_version }}"
+  }
+
+  You might run a version bump in dryrun mode now to see which files would
+  change and how.
+
+  $ yeyo bump minor --dryrun
+  Replacing line: __version__ = "0.0.0-dev.1" with __version__ = "0.1.0" in file __init__.py.
+  ...
 
 Options:
-  --help  Show this message and exit.
+  -t, --template_string TEXT  The template string to find and replace with.
+  --help                      Show this message and exit.
 ```
 
 ### Group: bump

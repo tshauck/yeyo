@@ -14,11 +14,10 @@ import git
 import semver
 from jinja2 import Template
 
-DEFAULT_TAG_TEMPLATE = "{{ version }}"
-DEFAULT_COMMIT_TEMPLATE = "{{ version }}"
+YEYO_VERSION_TEMPLATE = "yeyo_version"
+DEFAULT_TAG_TEMPLATE = f"{{{{ {YEYO_VERSION_TEMPLATE} }}}}"
+DEFAULT_COMMIT_TEMPLATE = f"{{{{ {YEYO_VERSION_TEMPLATE} }}}}"
 DEFAULT_CONFIG_PATH = ".yeyo.json"
-
-YEYO_VERSION_TEMPLATE = "YEYO_VERSION_TEMPLATE"
 
 
 class YeyoDirtyRepoException(Exception):
@@ -80,12 +79,12 @@ class YeyoConfig(object):
     def get_templated_tag(self, **kwargs):
         """Render the tag template, kwargs are passed to the jinja template."""
         t = Template(self.tag_template)
-        return t.render(version=self.version_string, files=self.files, **kwargs)
+        return t.render(yeyo_version=self.version_string, files=self.files, **kwargs)
 
     def get_templated_commit(self, **kwargs):
         """Render the commit template, kwargs are passed to the jinja template."""
         t = Template(self.commit_template)
-        return t.render(version=self.version_string, files=self.files, **kwargs)
+        return t.render(yeyo_version=self.version_string, files=self.files, **kwargs)
 
     @classmethod
     def from_version_string(
