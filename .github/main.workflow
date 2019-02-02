@@ -10,6 +10,6 @@ action "Build Image" {
 
 action "Run Image" {
   uses = "actions/docker/cli@c08a5fc9e0286844156fefff2c141072048141f6"
-  args = "run --rm -t thauck/yeyo"
+  args = "run --rm -w=/yeyo --entrypoint=pytest -t thauck/yeyo-test"
   needs = ["Build Image"]
 }
