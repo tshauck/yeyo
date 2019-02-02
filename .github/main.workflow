@@ -1,6 +1,6 @@
 workflow "New workflow" {
   on = "push"
-  resolves = ["Build Image", "Run Tests"]
+  resolves = ["Build Image", "Run Image"]
 }
 
 action "Build Image" {
@@ -8,8 +8,8 @@ action "Build Image" {
   args = "build -t thauck/yeyo ."
 }
 
-action "Run Tests" {
+action "Run Image" {
   uses = "actions/docker/cli@c08a5fc9e0286844156fefff2c141072048141f6"
-  args = "run --rm -w=/yeyo --entrypoint="pytest" -t thauck/yeyo"
+  args = "run --rm -t thauck/yeyo"
   needs = ["Build Image"]
 }
