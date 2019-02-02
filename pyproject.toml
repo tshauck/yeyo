@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "yeyo"
-version = "0.2.0-dev.2"
+version = "0.2.0"
 description = "Hey-o for yeyo."
 authors = ["Trent Hauck <trent@trenthauck.com>"]
 
