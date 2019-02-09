@@ -2,7 +2,7 @@ FROM python:3.6-alpine
 
 LABEL version="0.2.0"
 
-RUN apk add --no-cache git==2.18.1-r0
+RUN apk add --no-cache git
 RUN pip install poetry==0.12.10
 
 WORKDIR /yeyo
