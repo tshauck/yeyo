@@ -1,6 +1,6 @@
 workflow "New workflow" {
   on = "push"
-  resolves = ["Build Image", "Run Tests"]
+  resolves = ["Build Image", "Run Tests", "Docker Tag"]
 }
 
 action "Build Image" {
