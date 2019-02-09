@@ -13,3 +13,8 @@ action "Run Tests" {
   args = "run --rm -w=/yeyo --entrypoint=pytest -t thauck/yeyo-tester"
   needs = ["Build Image"]
 }
+
+action "Docker Tag" {
+  uses = "actions/docker/tag@aea64bb1b97c42fa69b90523667fef56b90d7cff"
+  needs = ["Run Tests"]
+}
