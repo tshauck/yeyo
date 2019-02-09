@@ -3,7 +3,6 @@
 > yeyo is a command line tool for managing versions across file types within a repo.
 
 [![](https://img.shields.io/pypi/v/yeyo.svg)](https://pypi.python.org/pypi/yeyo)
-[![](https://img.shields.io/travis/tshauck/yeyo.svg)](https://travis-ci.org/tshauck/yeyo)
 [![](https://img.shields.io/docker/pulls/thauck/yeyo.svg)](https://hub.docker.com/r/thauck/yeyo)
 
 <!-- vim-markdown-toc GFM -->
