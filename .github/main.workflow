@@ -1,18 +1,11 @@
 workflow "CI" {
   on = "push"
-  resolves = ["Master", "Build Image", "Run Tests", "Docker Tag"]
-}
-
-action "Master" {
-  needs = "Test"
-  uses = "actions/bin/filter@master"
-  args = "branch master *\.*\.*"
+  resolves = ["Build Image", "Run Tests", "Docker Tag"]
 }
 
 action "Build Image" {
   uses = "actions/docker/cli@c08a5fc9e0286844156fefff2c141072048141f6"
   args = "build -t base ."
-  needs = ["Master"]
 }
 
 action "Run Tests" {
