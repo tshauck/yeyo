@@ -1,6 +1,6 @@
 workflow "CI" {
   on = "push"
-  resolves = ["Build Image", "Run Tests", "Docker Tag"]
+  resolves = ["Master", "Build Image", "Run Tests", "Docker Tag"]
 }
 
 action "Master" {
@@ -12,6 +12,7 @@ action "Master" {
 action "Build Image" {
   uses = "actions/docker/cli@c08a5fc9e0286844156fefff2c141072048141f6"
   args = "build -t base ."
+  needs = ["Master"]
 }
 
 action "Run Tests" {
