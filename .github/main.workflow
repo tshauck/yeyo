@@ -1,6 +1,12 @@
-workflow "New workflow" {
+workflow "CI" {
   on = "push"
   resolves = ["Build Image", "Run Tests", "Docker Tag"]
+}
+
+action "Master" {
+  needs = "Test"
+  uses = "actions/bin/filter@master"
+  args = "branch master *\.*\.*"
 }
 
 action "Build Image" {
