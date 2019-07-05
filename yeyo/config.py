@@ -5,6 +5,7 @@
 import copy
 import fileinput
 import json
+from io import StringIO
 from pathlib import Path
 from typing import NamedTuple
 from typing import Optional
@@ -49,7 +50,9 @@ class YeyoConfig(NamedTuple):
 
     def __repr__(self):
         """Return the string representation."""
-        return json.dumps(self.to_dict(), indent=4)
+        sio = StringIO()
+        yaml.round_trip_dump(self.to_dict(), sio, default_flow_style=False)
+        return sio.getvalue()
 
     def to_dict(self):
         """Convert the config into a dict representation."""
@@ -59,7 +62,7 @@ class YeyoConfig(NamedTuple):
             "commit_template": self.commit_template,
             "files": [
                 {"file_path": str(p.file_path), "match_template": p.match_template}
-                for p in self.files
+                for p in sorted(self.files, key=lambda x: x.file_path)
             ],
         }
 
@@ -140,13 +143,13 @@ class YeyoConfig(NamedTuple):
     def from_yaml(cls, p: Path):
         """Create a YeyoConfig from a yaml file."""
         with open(p) as out_handler:
-            d = yaml.load(out_handler, Loader=yaml.Loader)
+            d = yaml.round_trip_load(out_handler)
             return cls.from_dict(d)
 
     def to_yaml(self, p: Path):
         """Write the YeyoConfig to a yaml file."""
         with open(p, "w") as out_handler:
-            yaml.dump(self.to_dict(), out_handler, default_flow_style=False)
+            yaml.round_trip_dump(self.to_dict(), out_handler, default_flow_style=False)
 
     def _update_files(self, old_yeyo_config: "YeyoConfig", dryrun: bool):
         inplace = not dryrun
@@ -183,9 +186,11 @@ class YeyoConfig(NamedTuple):
             self._update_files(old_yeyo_config, dryrun)
 
         if dryrun:
-            print(f"\nNew Config:\n{self}")
-            print(f"Tag Template: {self.get_templated_tag()}.")
-            print(f"Commit Template: {self.get_templated_commit()}.")
+            print(f"\nNew Config:\n\n{self}")
+            print(f"Git tag before: {git_tag_before}")
+            print(f"Git tag after: {git_tag_after}")
+            print(f"Tag Template: {self.get_templated_tag()}")
+            print(f"Commit Template: {self.get_templated_commit()}")
         else:
             self.to_yaml(config_path)
 
