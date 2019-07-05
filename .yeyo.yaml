@@ -1,3 +1,5 @@
+version: 0.3.0-dev.2
+tag_template: '{{ yeyo_version }}'
 commit_template: '{{ yeyo_version }}'
 files:
 - file_path: VERSION
@@ -6,5 +8,3 @@ files:
   match_template: version = "yeyo_version"
 - file_path: yeyo/__init__.py
   match_template: yeyo_version
-tag_template: '{{ yeyo_version }}'
-version: 0.3.0-dev.1
