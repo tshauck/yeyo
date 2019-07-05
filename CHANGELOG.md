@@ -5,6 +5,8 @@
 ### Added
 
 - Now use yaml as the default for for the config file.
+- Require 3.7 for python. Expectation is run this through docker.
+- User docker-compose vs built-in docker for development.
 
 ## 0.2.0
 

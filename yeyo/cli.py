@@ -7,7 +7,6 @@ import json
 from pathlib import Path
 
 import click
-import docker as dockerpy
 import py
 from jinja2 import Template
 from semver import parse_version_info
@@ -147,45 +146,6 @@ def dev():
 def test():
     """Run yeyo's tests through pytest."""
     py.test.cmdline.main(["yeyo"])
-
-
-@dev.group()
-@click.option("-i", "--image", default="thauck/yeyo", help="The docker image name to make.")
-@click.option(
-    "-t",
-    "--tags",
-    default=[__version__, "latest"],
-    help="The tags to ascribe to the image.",
-    multiple=True,
-)
-@click.option("-u", "--username", help="The username to use to authenticate to docker.")
-@click.option("-p", "--password", help="The password to use to authenticate to docker.")
-@click.pass_context
-def docker(ctx, image, tags, username, password):
-    """Create a docker group with commands for working with yeyo's docker image."""
-    ctx.obj["client"] = dockerpy.from_env()
-    ctx.obj["client"].login(username, password)
-
-    ctx.obj["image"] = image
-    ctx.obj["tags"] = [f"{image}:{t}" for t in tags]
-
-
-@docker.command()
-@click.pass_context
-def build(ctx):
-    """Build the docker image with the appropriate tags."""
-    image, _ = ctx.obj["client"].images.build(
-        path=".", tag=ctx.obj["tags"], dockerfile="Dockerfile"
-    )
-    click.echo(image)
-
-
-@docker.command()
-@click.pass_context
-def push(ctx):
-    """Push the docker image to docker hub."""
-    push = ctx.obj["client"].images.push(ctx.obj["image"])
-    print(json.dumps(push, indent=2).replace(r"\r\n", "\n"))
 
 
 @main.command()
