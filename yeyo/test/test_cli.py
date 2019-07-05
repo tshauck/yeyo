@@ -80,7 +80,7 @@ def test_version_bumps():
             result = runner.invoke(cli.main, command)
             assert result.exit_code == 0
 
-            yc = YeyoConfig.from_json(Path(DEFAULT_CONFIG_PATH))
+            yc = YeyoConfig.from_yaml(Path(DEFAULT_CONFIG_PATH))
             assert yc == config
 
             assert_files_in_config_have_version(yc)

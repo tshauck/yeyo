@@ -13,11 +13,12 @@ from typing import Set
 import git
 import semver
 from jinja2 import Template
+from ruamel import yaml
 
 YEYO_VERSION_TEMPLATE = "yeyo_version"
 DEFAULT_TAG_TEMPLATE = f"{{{{ {YEYO_VERSION_TEMPLATE} }}}}"
 DEFAULT_COMMIT_TEMPLATE = f"{{{{ {YEYO_VERSION_TEMPLATE} }}}}"
-DEFAULT_CONFIG_PATH = ".yeyo.json"
+DEFAULT_CONFIG_PATH = ".yeyo.yaml"
 
 
 class YeyoDirtyRepoException(Exception):
@@ -38,25 +39,44 @@ class FileVersion(NamedTuple):
         return s.replace(search_string, replace_string)
 
 
-class YeyoConfig(object):
+class YeyoConfig(NamedTuple):
     """The base Yeyo config object."""
 
-    def __init__(
-        self,
-        version: semver.VersionInfo,
-        tag_template: str = DEFAULT_TAG_TEMPLATE,
-        commit_template: str = DEFAULT_COMMIT_TEMPLATE,
-        files: Optional[Set[FileVersion]] = None,
-    ):
-        """Initialize a YeyoConfig with a version and a set of files."""
-        self.version = version
-        self.tag_template = tag_template
-        self.commit_template = commit_template
-        self.files = files or set()
+    version: semver.VersionInfo
+    tag_template: str = DEFAULT_TAG_TEMPLATE
+    commit_template: str = DEFAULT_COMMIT_TEMPLATE
+    files: Optional[Set[FileVersion]] = set()
 
     def __repr__(self):
         """Return the string representation."""
-        return json.dumps(self, cls=YeyoConfigEncoder, indent=4)
+        return json.dumps(self.to_dict(), indent=4)
+
+    def to_dict(self):
+        """Convert the config into a dict representation."""
+        return {
+            "version": self.version_string,
+            "tag_template": self.tag_template,
+            "commit_template": self.commit_template,
+            "files": [
+                {"file_path": str(p.file_path), "match_template": p.match_template}
+                for p in self.files
+            ],
+        }
+
+    @classmethod
+    def from_dict(cls, obj):
+        """Given the dict obj, parse it into the a YeyoConfig."""
+        version = semver.parse_version_info(obj["version"])
+
+        files = []
+        for fv in obj["files"]:
+            files.append(FileVersion(Path(fv["file_path"]), fv["match_template"]))
+        files = set(files)
+
+        tag_template = obj.get("tag_template", DEFAULT_TAG_TEMPLATE)
+        commit_template = obj.get("commit_template", DEFAULT_COMMIT_TEMPLATE)
+
+        return cls(version, tag_template, commit_template, files)
 
     def __eq__(self, other):
         """Check the equality against another YeyoConfig object."""
@@ -108,13 +128,25 @@ class YeyoConfig(object):
     def from_json(cls, p: Path):
         """Create a YeyoConfig from a json file."""
         with open(p) as out_handler:
-            return json.load(out_handler, cls=YeyoConfigDecoder)
+            d = json.load(out_handler)
+            return cls.from_dict(d)
 
     def to_json(self, p: Path):
         """Write the YeyoConfig to a json file."""
         with open(p, "w") as out_handler:
-            json.dump(self, out_handler, cls=YeyoConfigEncoder)
-            out_handler.write("\n")
+            json.dump(self.to_dict(), out_handler)
+
+    @classmethod
+    def from_yaml(cls, p: Path):
+        """Create a YeyoConfig from a yaml file."""
+        with open(p) as out_handler:
+            d = yaml.load(out_handler, Loader=yaml.Loader)
+            return cls.from_dict(d)
+
+    def to_yaml(self, p: Path):
+        """Write the YeyoConfig to a yaml file."""
+        with open(p, "w") as out_handler:
+            yaml.dump(self.to_dict(), out_handler, default_flow_style=False)
 
     def _update_files(self, old_yeyo_config: "YeyoConfig", dryrun: bool):
         inplace = not dryrun
@@ -155,7 +187,7 @@ class YeyoConfig(object):
             print(f"Tag Template: {self.get_templated_tag()}.")
             print(f"Commit Template: {self.get_templated_commit()}.")
         else:
-            self.to_json(config_path)
+            self.to_yaml(config_path)
 
             if git_tag_after:
                 self._tag_after()
@@ -279,50 +311,3 @@ class YeyoConfig(object):
             self.version.prerelease,
             self.version.build,
         )
-
-
-class YeyoConfigEncoder(json.JSONEncoder):
-    """Encode a YeyoConfig object."""
-
-    def default(self, o):
-        """Handle the deserialization of the object."""
-        if isinstance(o, YeyoConfig):
-            d = {}
-            d["files"] = [
-                {"file_path": str(p.file_path), "match_template": p.match_template} for p in o.files
-            ]
-            d["version"] = o.version_string
-            d["tag_template"] = o.tag_template
-            d["commit_template"] = o.commit_template
-
-            return d
-        elif isinstance(o, set):
-            return list(o)
-        else:
-            return super().default(o)
-
-
-class YeyoConfigDecoder(json.JSONDecoder):
-    """Decode a YeyoConfig object."""
-
-    def __init__(self, *args, **kwargs):
-        """Init the JSONDecoder object."""
-        json.JSONDecoder.__init__(self, object_hook=self.object_hook, *args, **kwargs)
-
-    def object_hook(self, obj):
-        """Given the object passed, return a YeyoConfig object."""
-
-        if set(obj.keys()) == {"file_path", "match_template"}:
-            return FileVersion(Path(obj["file_path"]), obj["match_template"])
-
-        version = semver.parse_version_info(obj["version"])
-
-        files = []
-        for fv in obj["files"]:
-            files.append(fv)
-        files = set(files)
-
-        tag_template = obj.get("tag_template", DEFAULT_TAG_TEMPLATE)
-        commit_template = obj.get("commit_template", DEFAULT_COMMIT_TEMPLATE)
-
-        return YeyoConfig(version, tag_template, commit_template, files)

@@ -17,8 +17,8 @@ from yeyo import __version__
 from yeyo.config import DEFAULT_COMMIT_TEMPLATE
 from yeyo.config import DEFAULT_CONFIG_PATH
 from yeyo.config import DEFAULT_TAG_TEMPLATE
-from yeyo.config import YeyoConfig
 from yeyo.config import YEYO_VERSION_TEMPLATE
+from yeyo.config import YeyoConfig
 
 STARTING_VERSION = "0.0.0-dev.1"
 STARTING_FILE = Path("VERSION")
@@ -104,7 +104,7 @@ def banner():
 @click.pass_context
 def git(ctx):
     """Entrypoint for git commands."""
-    ctx.obj["yc"] = YeyoConfig.from_json(ctx.obj["config_path"])
+    ctx.obj["yc"] = YeyoConfig.from_yaml(ctx.obj["config_path"])
 
 
 @git.command()
@@ -259,7 +259,7 @@ def bump(ctx):
 
     $ yeyo bump minor --prerel --dryrun
     """
-    ctx.obj["yc"] = YeyoConfig.from_json(ctx.obj["config_path"])
+    ctx.obj["yc"] = YeyoConfig.from_yaml(ctx.obj["config_path"])
 
 
 @bump.command()
@@ -370,7 +370,7 @@ def finalize(ctx, **kwargs):
 @click.pass_context
 def files(ctx):
     """Entrypoint for adding or removing files."""
-    ctx.obj["yc"] = YeyoConfig.from_json(ctx.obj["config_path"])
+    ctx.obj["yc"] = YeyoConfig.from_yaml(ctx.obj["config_path"])
 
 
 @files.command()

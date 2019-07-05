@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0
+
+### Added
+
+- Now use yaml as the default for for the config file.
+
 ## 0.2.0
 
 ### Added
