@@ -1,0 +1,10 @@
+version: 0.3.0
+tag_template: '{{ yeyo_version }}'
+commit_template: '{{ yeyo_version }}'
+files:
+- file_path: VERSION
+  match_template: yeyo_version
+- file_path: pyproject.toml
+  match_template: version = "yeyo_version"
+- file_path: yeyo/__init__.py
+  match_template: yeyo_version

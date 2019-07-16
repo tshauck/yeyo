@@ -66,6 +66,20 @@ class TestYeyoConfig(unittest.TestCase):
             yc2 = YeyoConfig.from_json(config_path)
             self.assertEqual(yc, yc2)
 
+    def test_to_yaml_roundtrip(self):
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            config_path = tmp_path / "test.yaml"
+
+            yc = YeyoConfig.from_version_string(
+                "0.1.1", DEFAULT_COMMIT_TEMPLATE, DEFAULT_TAG_TEMPLATE
+            ).add_file(Path("test"), "test")
+            yc.to_yaml(config_path)
+
+            yc2 = YeyoConfig.from_yaml(config_path)
+            self.assertEqual(yc, yc2)
+
     def test_replace_version(self):
 
         with tempfile.TemporaryDirectory() as tmp:
