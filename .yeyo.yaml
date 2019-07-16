@@ -1,4 +1,4 @@
-version: 0.3.0-dev.2
+version: 0.3.0
 tag_template: '{{ yeyo_version }}'
 commit_template: '{{ yeyo_version }}'
 files:
