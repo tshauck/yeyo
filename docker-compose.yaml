@@ -4,7 +4,7 @@ services:
   yeyo:
     build:
       context: .
-    image: ${IMAGE:-docker.io/tshauck/yeyo}:${TAG:-development}
+    image: ${IMAGE:-docker.io/thauck/yeyo}:${TAG:-development}
     volumes:
       - $PWD:/project
       - $HOME/.gitconfig:/etc/gitconfig
